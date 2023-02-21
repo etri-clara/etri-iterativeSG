@@ -1,5 +1,15 @@
 # etri-iterativeSG
 
+# our motivation
+![plot](./intro_img.png)
+
+# results
+| Model                               | Dataset            | BLEU-4 | METEOR | ROUGE | CIDER | SPICE | CLIPScore | RefCLIPScore | 
+|:-----------------------------------:|:------------------:|:------:|:------:|:-----:|:-----:|:-----:|:---------:|:------------:|
+| ClipCap (transformer-mapper)        | COCO-VAL2014       | 0.3642 | 0.2825 | 0.5751 | 1.1832 | 0.2133 | 0.7661 | 0.8227 |
+| CapDec (transformer-mapper)         | COCO-VAL2014       | 0.2769 | 0.2482 | 0.5204 | 0.9248 | 0.1809 | 0.7606 | 0.8087 |
+
+...
 
 
 
