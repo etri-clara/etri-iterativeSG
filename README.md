@@ -1,15 +1,29 @@
 # etri-iterativeSG
 
+전상훈 박사님/최민규 학생! 제가 샘플로 만들어놓은 README입니다. 코드 올려주시고 README 보완해주세요.
+
 # our motivation
 ![plot](./intro_img.png)
 
 # results
-| Model                               | Dataset            | BLEU-4 | METEOR | ROUGE | CIDER | SPICE | CLIPScore | RefCLIPScore | 
-|:-----------------------------------:|:------------------:|:------:|:------:|:-----:|:-----:|:-----:|:---------:|:------------:|
-| ClipCap (transformer-mapper)        | COCO-VAL2014       | 0.3642 | 0.2825 | 0.5751 | 1.1832 | 0.2133 | 0.7661 | 0.8227 |
-| CapDec (transformer-mapper)         | COCO-VAL2014       | 0.2769 | 0.2482 | 0.5204 | 0.9248 | 0.1809 | 0.7606 | 0.8087 |
+| Model |     Encoder(Backbone/Detector)    | Decoder  | Backbone parameter | Total parameter |  GPU  | Batch | 
+|:-----:|:---------------------------------:|:--------:|:------------------:|:---------------:|:-----:|:-----:|
+| A     |        ResNet-101/DETR            | 0        |         0          |        0        |   -   |   12  | 
+| Ours  |  VoVNetV2-99-FPN/CenterMask       | 0        |         0          |        0        |   -   |   12  | 
+
 
 ...
+| Model |     R@20/50/100    | .... | 
+|:-----:|:------------------:|:----:|
+| A     |      1/2/3         | ...  | 
+| Ours  |      1/2/3         | ...  | 
+
+
+...
+| Model |     AP   | .... | 
+|:-----:|:--------:|:----:|
+| A     |          | ...  | 
+| Ours  |          | ...  | 
 
 
 
