@@ -4,11 +4,11 @@ from detectron2.config import CfgNode as CN
 def add_dataset_config(cfg):
   _C = cfg
 
-  _C.MODEL.ROI_HEADS.NUM_OUTPUT_CLASSES = 80
+  _C.MODEL.ROI_HEADS.NUM_OUTPUT_CLASSES = 150
   _C.MODEL.ROI_HEADS.EMBEDDINGS_PATH = ""
   _C.MODEL.ROI_HEADS.EMBEDDINGS_PATH_COCO = ""
   _C.MODEL.ROI_HEADS.LINGUAL_MATRIX_THRESHOLD = 0.05
-  _C.MODEL.ROI_HEADS.MASK_NUM_CLASSES = 80
+  _C.MODEL.ROI_HEADS.MASK_NUM_CLASSES = 150
 
   _C.MODEL.FREEZE_LAYERS = CN()
   _C.MODEL.FREEZE_LAYERS.META_ARCH = []
@@ -65,7 +65,7 @@ def add_dataset_config(cfg):
   _C.DATASETS.MASK_TEST = ('coco_val_2017',)
 
   _C.MODEL.DETR = CN()
-  _C.MODEL.DETR.NUM_CLASSES = 80
+  _C.MODEL.DETR.NUM_CLASSES = 150
   _C.MODEL.DETR.NUM_RELATION_CLASSES = 50
 
   # For Segmentation
@@ -136,7 +136,7 @@ def add_dataset_config(cfg):
   _C.SOLVER.RELATION_MULTIPLIER = 1.0
   _C.SOLVER.ENTITY_MULTIPLIER = 1.0
   _C.MODEL.DF_DETR = CN()
-  _C.MODEL.DF_DETR.NUM_CLASSES = 80
+  _C.MODEL.DF_DETR.NUM_CLASSES = 150
 
   # MODEL Variants 
   _C.MODEL.DF_DETR.WITH_BOX_REFINE = False
@@ -242,7 +242,7 @@ def add_scenegraph_config(cfg):
                                        0.31621, 0.00088, 0.00301, 0.00042, 0.00186, 0.00100, 0.00027, 0.01012, 0.00010, 0.01286,
                                        0.00647, 0.00084, 0.01077, 0.00132, 0.00069, 0.00376, 0.00214, 0.11424, 0.01205, 0.02958]
 
-    _C.MODEL.ROI_SCENEGRAPH_HEAD.ZERO_SHOT_TRIPLETS = 'evaluation/datasets/vg/zeroshot_triplet.pytorch'
+    _C.MODEL.ROI_SCENEGRAPH_HEAD.ZERO_SHOT_TRIPLETS = './evaluation/datasets/vg/zeroshot_triplet.pytorch'
 
     #TransformerContext
     _C.MODEL.ROI_SCENEGRAPH_HEAD.TRANSFORMER = CN()
