@@ -14,7 +14,7 @@ _C.MODEL.MOBILENET = False
 _C.MODEL.FCOS = CN()
 
 # This is the number of foreground classes.
-_C.MODEL.FCOS.NUM_CLASSES = 80
+_C.MODEL.FCOS.NUM_CLASSES = 150
 _C.MODEL.FCOS.IN_FEATURES = ["p3", "p4", "p5", "p6", "p7"]
 _C.MODEL.FCOS.FPN_STRIDES = [8, 16, 32, 64, 128]
 _C.MODEL.FCOS.PRIOR_PROB = 0.01
@@ -55,6 +55,7 @@ _C.MODEL.FCOS.LOC_LOSS_TYPE = 'giou'
 
 _C.MODEL.VOVNET = CN()
 
+# change number when change backbone model [39, 57, 99]
 _C.MODEL.VOVNET.CONV_BODY = "V-39-eSE"
 _C.MODEL.VOVNET.OUT_FEATURES = ["stage2", "stage3", "stage4", "stage5"]
 # Options: FrozenBN, GN, "SyncBN", "BN"
