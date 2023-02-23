@@ -8,6 +8,7 @@ from detectron2.modeling.backbone import Backbone
 from detectron2.layers import Conv2d, ShapeSpec, get_norm
 
 
+# change code from detectron2/modeling/backbone/fpn.py
 class FPN(Backbone):
     """
     This module implements :paper:`FPN`.
@@ -146,6 +147,9 @@ class FPN(Backbone):
                 features = bottom_up_features[features]
                 top_down_features = F.interpolate(prev_features, scale_factor=2.0, mode="nearest")
                 lateral_features = lateral_conv(features)
+                #### 수정 ####
+                lateral_features = lateral_features[:,:,:top_down_features.shape[2],:top_down_features.shape[3]]
+                ##############
                 prev_features = lateral_features + top_down_features
                 if self._fuse_type == "avg":
                     prev_features /= 2

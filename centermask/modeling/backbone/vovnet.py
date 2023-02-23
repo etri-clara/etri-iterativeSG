@@ -4,10 +4,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import fvcore.nn.weight_init as weight_init
 from detectron2.modeling.backbone import Backbone
 from detectron2.modeling.backbone.build import BACKBONE_REGISTRY
-from detectron2.modeling.backbone.fpn import FPN, LastLevelMaxPool
+from detectron2.modeling.backbone.fpn import LastLevelMaxPool
+## import FPN from local code
+from .fpn import FPN
 from detectron2.layers import (
     Conv2d,
     DeformConv,
@@ -497,7 +498,7 @@ def build_vovnet_backbone(cfg, input_shape):
     Returns:
         VoVNet: a :class:`VoVNet` instance.
     """
-    out_features = cfg.MODEL.VOVNET.OUT_FEATURES
+    out_features = cfg.MODEL.VOVNET.OUT_FEATURES # ["stage2", "stage3", "stage4", "stage5"]
     return VoVNet(cfg, input_shape.channels, out_features=out_features)
 
 
@@ -534,9 +535,9 @@ def build_fcos_vovnet_fpn_backbone(cfg, input_shape: ShapeSpec):
         backbone (Backbone): backbone module, must be a subclass of :class:`Backbone`.
     """
     bottom_up = build_vovnet_backbone(cfg, input_shape)
-    in_features = cfg.MODEL.FPN.IN_FEATURES
-    out_channels = cfg.MODEL.FPN.OUT_CHANNELS
-    top_levels = cfg.MODEL.FCOS.TOP_LEVELS
+    in_features = cfg.MODEL.FPN.IN_FEATURES # ["stage3", "stage4", "stage5"]
+    out_channels = cfg.MODEL.FPN.OUT_CHANNELS # 256
+    top_levels = cfg.MODEL.FCOS.TOP_LEVELS # 2
     in_channels_top = out_channels
     if top_levels == 2:
         top_block = LastLevelP6P7(in_channels_top, out_channels, "p5")
