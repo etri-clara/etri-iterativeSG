@@ -446,6 +446,7 @@ class FCOSOutputs(object):
             # Limit to max_per_image detections **over all classes**
             if number_of_detections > self.fpn_post_nms_top_n > 0:
                 cls_scores = result.scores
+                cls_scores = cls_scores.type(torch.float32)
                 image_thresh, _ = torch.kthvalue(
                     cls_scores.cpu(),
                     number_of_detections - self.fpn_post_nms_top_n + 1

@@ -71,7 +71,7 @@ class FCOS(nn.Module):
                 like `scores`, `labels` and `mask` (for Mask R-CNN models).
 
         """
-        features = [features[f] for f in self.in_features]
+        features = [features[f].tensors for f in self.in_features]
         locations = self.compute_locations(features)
         logits_pred, reg_pred, ctrness_pred, bbox_towers = self.fcos_head(features)
 
@@ -108,11 +108,8 @@ class FCOS(nn.Module):
 
         if self.training:
             losses, _ = outputs.losses()
-            if self.mask_on:
-                proposals = outputs.predict_proposals()
-                return proposals, losses
-            else:
-                return None, losses
+            proposals = outputs.predict_proposals()
+            return proposals, losses
         else:
             proposals = outputs.predict_proposals()
             return proposals, {}
@@ -186,7 +183,7 @@ class FCOSHead(nn.Module):
                             nn.Sequential(*tower))
 
         self.cls_logits = nn.Conv2d(
-            in_channels, self.num_classes,
+            in_channels, 150, # self.num_classes,
             kernel_size=3, stride=1,
             padding=1
         )
