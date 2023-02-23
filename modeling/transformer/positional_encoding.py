@@ -3,10 +3,11 @@ Various positional encodings for the transformer.
 """
 import math
 import torch
-from torch import nn,Tensor
+from torch import nn, Tensor
+
+from detectron2.utils.registry import Registry
 
 from .util.misc import NestedTensor
-from detectron2.utils.registry import Registry
 
 POSITION_ENCODING_REGISTRY = Registry("POSITION_ENCODING_REGISTRY")
 

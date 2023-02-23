@@ -1,19 +1,15 @@
 """
 DETR model and criterion classes.
 """
-from multiprocessing import Condition
 import torch
 import torch.nn.functional as F
+import math
+import copy
 from torch import nn
 
-from .util.misc import (NestedTensor, nested_tensor_from_tensor_list,
-                       accuracy, get_world_size, interpolate,
-                       is_dist_avail_and_initialized, inverse_sigmoid)
-
-import copy
-import numpy as np
 from detectron2.utils.registry import Registry
-import math 
+
+from .util.misc import NestedTensor, nested_tensor_from_tensor_list
 
 DETR_REGISTRY = Registry("DETR_REGISTRY")
 
@@ -35,6 +31,7 @@ class DETR(nn.Module):
         self.num_queries = num_queries
         self.transformer = transformer
         hidden_dim = transformer.d_model
+        # self.class_embed = nn.Linear(hidden_dim, num_classes)
         self.class_embed = nn.Linear(hidden_dim, num_classes + 1)
         self.bbox_embed = MLP(hidden_dim, hidden_dim, 4, 3)
         self.query_embed = nn.Embedding(num_queries, hidden_dim)
@@ -88,7 +85,7 @@ class IterativeRelationDETR(DETR):
         del self.class_embed
         del self.bbox_embed
 
-    def forward(self, samples: NestedTensor):
+    def forward(self, samples: NestedTensor, gt_instances):
         """ The forward expects a NestedTensor, which consists of:
                - samples.tensor: batched images, of shape [batch_size x 3 x H x W]
                - samples.mask: a binary mask of shape [batch_size x H x W], containing 1 on padded pixels
@@ -104,12 +101,13 @@ class IterativeRelationDETR(DETR):
         """
         if isinstance(samples, (list, torch.Tensor)):
             samples = nested_tensor_from_tensor_list(samples)
-        features, pos = self.backbone(samples)
+        xs, features, pos = self.backbone(samples)
+        
 
         src, mask = features[-1].decompose()
         assert mask is not None
         
-        output = self.transformer(self.input_proj(src), mask, self.query_embed.weight, self.object_query_embed.weight, self.relation_query_embed.weight, pos[-1])     
+        output = self.transformer(self.input_proj(src), mask, self.query_embed.weight, self.object_query_embed.weight, self.relation_query_embed.weight, pos[-3], samples, xs, gt_instances)     
         
         out = { 
                 'relation_boxes': output['relation_coords'][-1],

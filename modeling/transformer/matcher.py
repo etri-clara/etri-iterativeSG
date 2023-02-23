@@ -3,10 +3,9 @@ from scipy.optimize import linear_sum_assignment
 from torch import nn
 import numpy as np
 
-from .util.box_ops import box_cxcywh_to_xyxy, generalized_box_iou
-
 from detectron2.utils.registry import Registry
-from torchvision.ops.boxes import box_area
+
+from .util.box_ops import box_cxcywh_to_xyxy, generalized_box_iou
 
 MATCHER_REGISTRY = Registry("MATCHER_REGISTRY")
 

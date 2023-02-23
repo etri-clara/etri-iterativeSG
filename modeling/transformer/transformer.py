@@ -1,15 +1,15 @@
-import copy
-from typing import Optional, List
-
 import torch
+import copy
 import torch.nn.functional as F
+import numpy as np
 from torch import nn, Tensor
+from typing import Optional
+
 from detectron2.utils.registry import Registry
+
 from .detr import MLP
-from .detr import gen_sineembed_for_position
-from .util.misc import inverse_sigmoid
-import math
-from torch.nn.init import xavier_uniform_, constant_, uniform_, normal_
+from .positional_encoding import build_position_encoding
+from .util.misc import NestedTensor
 
 TRANSFORMER_REGISTRY = Registry("TRANSFORMER_REGISTRY")
 
@@ -67,7 +67,14 @@ class IterativeRelationTransformer(nn.Module):
         encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward,
                                                 dropout, activation, normalize_before)
         encoder_norm = nn.LayerNorm(d_model) if normalize_before else None
-        self.encoder = TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
+        # encoder 사용 안함
+        # self.encoder = TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
+        
+        ## centermask 사용을 위한 코드 ##
+        self.proposal_generator = kwargs['proposal_generator']
+        self.roi_heads = kwargs['roi_heads']
+        self.centermask = CenterMask(self.proposal_generator, self.roi_heads)
+        ##########
 
         decoder_layer = TransformerDecoderLayer(d_model, nhead, dim_feedforward,
                                                 dropout, activation, normalize_before)
@@ -110,13 +117,35 @@ class IterativeRelationTransformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
 
-    def forward(self, src, mask, subject_embed, object_embed, relation_embed, pos_embed):
+    def mask_out_padding(self, shape, image_size, device):
+        masks = []
+        N, _, H, W = shape
+        masks_per_feature_level = torch.ones((N, H, W), dtype=torch.bool, device=device)
+        h, w = image_size[0], image_size[1]
+        for img_idx in range(N):
+            masks_per_feature_level[
+                img_idx,
+                : int(np.ceil(float(h) / 32)),
+                : int(np.ceil(float(w) / 32)),
+            ] = 0
+        masks.append(masks_per_feature_level)
+        return masks
+        
+    def forward(self, src, mask, subject_embed, object_embed, relation_embed, pos_embed, images, features, gt_instances):
         # flatten NxCxHxW to HWxNxC
         bs, c, h, w = src.shape
         src = src.flatten(2).permute(2, 0, 1)
         pos_embed = pos_embed.flatten(2).permute(2, 0, 1)
         mask = mask.flatten(1)
-        memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
+        # memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
+        memory = self.centermask(images, features, gt_instances)
+        # position embedding 다시
+        mask = self.mask_out_padding(memory.shape, images.tensor.shape[2:], memory.device)[0]
+        position_embedding = build_position_encoding('PositionEmbeddingSine', 256)
+        pos_embed = position_embedding(NestedTensor(tensors=memory, mask=mask)).to(memory.dtype)
+        mask = mask.flatten(1)
+        memory = memory.flatten(2).permute(2,0,1)
+        pos_embed = pos_embed.flatten(2).permute(2,0,1)
 
         subject_query_embed = subject_embed.unsqueeze(1).repeat(1, bs, 1)
         object_query_embed = object_embed.unsqueeze(1).repeat(1, bs, 1)
@@ -144,6 +173,59 @@ class IterativeRelationTransformer(nn.Module):
                   }
 
         return output
+
+class CenterMask(nn.Module):
+    def __init__(self, proposal_generator, roi_heads):
+        super(CenterMask, self).__init__()
+        self.fcos = proposal_generator
+        self.center_roi_heads = roi_heads
+
+    def forward(self, images, features, gt_instances):
+        
+        # proposal generator
+        proposals, _ = self.fcos(images, features, gt_instances)
+
+        # SAG-Mask
+        proposals, mask_logits = self.center_roi_heads(images, features, proposals, gt_instances)
+
+        output = []
+        device = mask_logits.device
+        batch_num = 0
+        # batch size 만큼 반복
+        for proposal in proposals:
+
+            # proposal에서 candidate bounding boxes의 좌표 리스트 추출
+            box_lists = [x for x in proposal.proposal_boxes]
+            box_lists = [x//32 for x in box_lists]
+
+            # candidate bounding boxes에 해당하는 feature map 추출
+            feature_map = mask_logits[:len(box_lists),:,:,:]
+            mask_logits = mask_logits[len(box_lists):,:,:,:]
+          
+            # backbone에서 추출한 (256, H/32, W/32) 크기의 feature map 복사
+            temp = features['p5'].tensors.clone()
+            temp = temp[batch_num, :, :, :].unsqueeze(0).cpu()
+
+            # backbone의 feature map에 candidate bounding boxes의 feature map을
+            # interpolate 하여 더함
+            for i in range(len(box_lists)):
+                box = box_lists[i]
+                box = box.to(torch.int)
+                if box[0] < 0 or box[1] < 0 or box[2] < 0 or box[3] < 0:
+                    continue
+                h, w = (box[2]-box[0], box[3]-box[1])
+                h, w = min(h, temp.shape[2]-box[0]), min(w, temp.shape[3]-box[1])
+                if h < 1 or w < 1:
+                    continue
+                interp = F.interpolate(feature_map[i,:,:,:].unsqueeze(0), size=(h, w), mode='bilinear', align_corners=True).cpu()
+                temp[:,:, box[0]:box[2], box[1]:box[3]] += interp
+
+            output.append(temp.squeeze())
+            batch_num += 1
+        output = torch.stack(output, dim=0)
+        
+        return output.to(device)
+
 
 
 class TransformerEncoder(nn.Module):

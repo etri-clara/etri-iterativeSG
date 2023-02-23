@@ -1,26 +1,14 @@
-from collections import defaultdict
-from email.policy import default
-from re import I
 import torch
 import torch.nn.functional as F
 from torch import nn
 
+from detectron2.utils.registry import Registry
+
 from .util import box_ops
-from .util.box_ops import box_cxcywh_to_xyxy, generalized_box_iou, box_iou
-from .util.misc import (NestedTensor, nested_tensor_from_tensor_list,
+from .util.misc import (nested_tensor_from_tensor_list,
                        accuracy, get_world_size, interpolate,
                        is_dist_avail_and_initialized)
-from scipy.optimize import linear_sum_assignment
-
-import copy
-import numpy as np
-from detectron2.utils.registry import Registry
 from .segmentation import sigmoid_focal_loss, dice_loss
-from torchvision.ops.boxes import box_area
-from collections import defaultdict
-import copy
-from scipy.optimize import linear_sum_assignment
-from detectron2.structures.boxes import pairwise_iou, Boxes
 
 CRITERION_REGISTRY = Registry("CRITERION_REGISTRY")
 
@@ -565,7 +553,6 @@ class IterativeRelationCriterion(IterativeRelationCriterionBase):
                 l_dict = {k + f'_{i}': v for k, v in l_dict.items()}
                 losses.update(l_dict)
         return losses
-
 
 
 def build_criterion(name, num_classes, matcher, weight_dict, eos_coef, losses, use_gt_box=False, use_gt_label=False, **kwargs):

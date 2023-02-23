@@ -1,6 +1,4 @@
 import torch
-from torch import Tensor
-from typing import Optional
 from pycocotools import mask as coco_mask
 
 
@@ -17,31 +15,6 @@ def box_xyxy_to_cxcywh(x):
     b = [(x0 + x1) / 2, (y0 + y1) / 2,
          (x1 - x0), (y1 - y0)]
     return torch.stack(b, dim=-1)
-
-
-# in util.misc
-class NestedTensor(object):
-    def __init__(self, tensors, mask: Optional[Tensor]):
-        self.tensors = tensors
-        self.mask = mask
-
-    def to(self, device):
-        # type: (Device) -> NestedTensor # noqa
-        cast_tensor = self.tensors.to(device)
-        mask = self.mask
-        if mask is not None:
-            assert mask is not None
-            cast_mask = mask.to(device)
-        else:
-            cast_mask = None
-        return NestedTensor(cast_tensor, cast_mask)
-
-    def decompose(self):
-        return self.tensors, self.mask
-
-    def __repr__(self):
-        return str(self.tensors)
-
 
 # in datasets.coco
 def convert_coco_poly_to_mask(segmentations, height, width):
