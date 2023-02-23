@@ -1,7 +1,5 @@
 import sys
 import os
-import numpy as np
-import torch
 sys.path.insert(0, '../../')
 sys.path.insert(0, '../')
 
@@ -11,11 +9,15 @@ from detectron2.engine import default_argument_parser, default_setup, launch
 from detectron2.config import get_cfg
 from detectron2.checkpoint import DetectionCheckpointer
 
-from IterativeSG.engine import JointTransformerTrainer
-from IterativeSG.data import VisualGenomeTrainData, register_datasets, DatasetCatalog, MetadataCatalog
-from IterativeSG.configs.defaults import add_dataset_config, add_scenegraph_config
-from IterativeSG.modeling import Detr
-from detectron2.data.datasets import register_coco_instances
+from engine import JointTransformerTrainer
+from data import register_datasets
+from configs.defaults import add_dataset_config, add_scenegraph_config
+from modeling import Detr
+
+from centermask.modeling.backbone import build_fcos_vovnet_fpn_backbone
+from centermask.modeling.centermask import CenterROIHeads
+from centermask.modeling.fcos import FCOS
+from centermask.config import get_cfg
 
 parser = default_argument_parser()
 
@@ -23,7 +25,7 @@ def setup(args):
     cfg = get_cfg()
     add_dataset_config(cfg)
     add_scenegraph_config(cfg)
-    assert(cfg.MODEL.ROI_SCENEGRAPH_HEAD.MODE in ['predcls', 'sgls', 'sgdet']), "Mode {} not supported".format(cfg.MODEL.ROI_SCENEGRaGraph.MODE)
+    assert(cfg.MODEL.ROI_SCENEGRAPH_HEAD.MODE in ['predcls', 'sgcls', 'sgdet']), "Mode {} not supported".format(cfg.MODEL.ROI_SCENEGRaGraph.MODE)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()
