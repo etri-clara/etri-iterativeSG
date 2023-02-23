@@ -12,7 +12,6 @@ from detectron2.utils.events import get_event_storage
 from detectron2.modeling.matcher import Matcher
 from detectron2.modeling.sampling import subsample_labels
 from detectron2.layers import ShapeSpec
-# from detectron2.modeling.roi_heads.keypoint_head import build_keypoint_head
 from .keypoint_head import build_keypoint_head
 
 
@@ -253,9 +252,10 @@ class ROIHeads(nn.Module):
             proposals_with_gt.append(proposals_per_image)
 
         # Log the number of fg/bg samples that are selected for training ROI heads
-        storage = get_event_storage()
-        storage.put_scalar("roi_head/num_fg_samples", np.mean(num_fg_samples))
-        storage.put_scalar("roi_head/num_bg_samples", np.mean(num_bg_samples))
+        if self.training:
+            storage = get_event_storage()
+            storage.put_scalar("roi_head/num_fg_samples", np.mean(num_fg_samples))
+            storage.put_scalar("roi_head/num_bg_samples", np.mean(num_bg_samples))
 
         return proposals_with_gt
 
@@ -315,8 +315,8 @@ class CenterROIHeads(ROIHeads):
     def _init_mask_head(self, cfg):
         # fmt: off
         self.mask_on           = cfg.MODEL.MASK_ON
-        if not self.mask_on:
-            return
+        # if not self.mask_on:
+        #     return
         pooler_resolution = cfg.MODEL.ROI_MASK_HEAD.POOLER_RESOLUTION
         pooler_scales     = tuple(1.0 / self.feature_strides[k] for k in self.in_features)
         sampling_ratio    = cfg.MODEL.ROI_MASK_HEAD.POOLER_SAMPLING_RATIO
@@ -392,23 +392,26 @@ class CenterROIHeads(ROIHeads):
         See :class:`ROIHeads.forward`.
         """
         del images
-        if self.training:
-            proposals = self.label_and_sample_proposals(proposals, targets)
+        # if self.training:
+        proposals = self.label_and_sample_proposals(proposals, targets)
         del targets
 
         if self.training:
             if self.maskiou_on:
-                losses, mask_features, selected_mask, labels, maskiou_targets = self._forward_mask(features, proposals)
-                losses.update(self._forward_maskiou(mask_features, proposals, selected_mask, labels, maskiou_targets))
+                # losses, mask_features, selected_mask, labels, maskiou_targets, mask_logits, proposals = self._forward_mask(features, proposals)
+                mask_logits, proposals = self._forward_mask(features, proposals)
+                # losses.update(self._forward_maskiou(mask_features, proposals, selected_mask, labels, maskiou_targets))
             else:
                 losses = self._forward_mask(features, proposals)
-            losses.update(self._forward_keypoint(features, proposals))
-            return proposals, losses
+            # losses.update(self._forward_keypoint(features, proposals))
+            return proposals, mask_logits ### mask_logits 추가
         else:
             # During inference cascaded prediction is used: the mask and keypoints heads are only
             # applied to the top scoring box detections.
-            pred_instances = self.forward_with_given_boxes(features, proposals)
-            return pred_instances, {}
+            # pred_instances = self.forward_with_given_boxes(features, proposals)
+            # return pred_instances, {}
+            mask_logits, proposals = self._forward_mask(features, proposals)
+            return proposals, mask_logits
 
     def forward_with_given_boxes(
         self, features: Dict[str, torch.Tensor], instances: List[Instances]
@@ -461,10 +464,10 @@ class CenterROIHeads(ROIHeads):
             In training, a dict of losses.
             In inference, update `instances` with new fields "pred_masks" and return it.
         """
-        if not self.mask_on:
-            return {} if self.training else instances
+        # if not self.mask_on:
+        #     return {} if self.training else instances
 
-        features = [features[f] for f in self.in_features]
+        features = [features[f].tensors for f in self.in_features]
 
         if self.training:
             # The loss is only defined on positive proposals.
@@ -472,19 +475,21 @@ class CenterROIHeads(ROIHeads):
             # proposal_boxes = [x.proposal_boxes for x in proposals]
             mask_features = self.mask_pooler(features, proposals, self.training)
             mask_logits = self.mask_head(mask_features)
+            return mask_logits, proposals 
             if self.maskiou_on:
                 loss, selected_mask, labels, maskiou_targets = mask_rcnn_loss(mask_logits, proposals, self.maskiou_on)
-                return {"loss_mask": loss}, mask_features, selected_mask, labels, maskiou_targets
+                return {"loss_mask": loss}, mask_features, selected_mask, labels, maskiou_targets, mask_logits, proposals ### mask_logits, proposals 추가
             else:
                 return {"loss_mask": mask_rcnn_loss(mask_logits, proposals, self.maskiou_on)}
         else:
             # pred_boxes = [x.pred_boxes for x in instances]
-            mask_features = self.mask_pooler(features, instances)
+            proposals, _ = select_foreground_proposals(instances, self.num_classes)
+            mask_features = self.mask_pooler(features, proposals, True)
             mask_logits = self.mask_head(mask_features)
-            mask_rcnn_inference(mask_logits, instances)
+            # mask_rcnn_inference(mask_logits, instances)
 
             if self.maskiou_on:
-                return instances, mask_features
+                return mask_logits, proposals
             else:
                 return instances
 
@@ -537,7 +542,7 @@ class CenterROIHeads(ROIHeads):
         if not self.keypoint_on:
             return {} if self.training else instances
 
-        features = [features[f] for f in self.kp_in_features]
+        features = [features[f].tensors for f in self.kp_in_features]
 
         if self.training:
             # The loss is defined on positive proposals with at >=1 visible keypoints.

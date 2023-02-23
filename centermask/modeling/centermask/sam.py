@@ -94,4 +94,4 @@ class SpatialAttentionMaskHead(nn.Module):
             x = layer(x)
         x = self.spatialAtt(x)
         x = F.relu(self.deconv(x))
-        return self.predictor(x)
+        return x
