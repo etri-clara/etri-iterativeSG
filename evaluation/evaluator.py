@@ -1,16 +1,11 @@
 import datetime
 import logging
 import time
-from collections import OrderedDict
-from contextlib import contextmanager
-from collections import Counter
 import torch
+from contextlib import contextmanager
 
 from detectron2.utils.comm import get_world_size, is_main_process
 from detectron2.utils.logger import log_every_n_seconds
-
-
-from detectron2.evaluation import COCOEvaluator
 
 
 def scenegraph_inference_on_dataset(cfg, model, data_loader, evaluator):
@@ -50,9 +45,8 @@ def scenegraph_inference_on_dataset(cfg, model, data_loader, evaluator):
             if idx == num_warmup:
                 start_time = time.perf_counter()
                 total_compute_time = 0
-
-    #        if len(inputs[0]['instances']) > 40:
-    #           continue
+            if len(inputs[0]['instances']) > 40:
+                continue
             start_compute_time = time.perf_counter()
             
             outputs = model(inputs)

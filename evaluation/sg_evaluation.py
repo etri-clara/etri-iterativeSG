@@ -1,15 +1,20 @@
 import logging
 import copy 
 import os
-from typing import OrderedDict
 import torch
 import numpy as np
-import json
+import itertools
+from typing import OrderedDict
 from tqdm import tqdm
 from functools import reduce
-import itertools
-
 from abc import ABC, abstractmethod
+
+import json
+import cv2
+from PIL import Image
+import torchvision.transforms as T
+import networkx as nx
+import matplotlib.pyplot as plt
 
 from fvcore.common.file_io import PathManager
 import detectron2.utils.comm as comm
@@ -116,13 +121,12 @@ class SceneGraphEvaluator(DatasetEvaluator):
         for idx, input in enumerate(inputs):
             height, width = outputs[idx]['instances'].image_size
             input['instances'] = resize_instance(input['instances'], height, width)
-        
         self.detection_evaluator.process(inputs, outputs)
+
 
         for input, output in zip(inputs, outputs):
             ground_truth = {}
             prediction = {}
-
             ground_truth['relation_tuple'] = input['relations'].to(self._cpu_device) #Relation tupe (obj_id, sub_id, relation label)
             ground_truth['gt_boxes'] = input['instances'].gt_boxes.to(self._cpu_device) #Ground truth object boxes
             ground_truth['labels'] = input['instances'].gt_classes.to(self._cpu_device) #Ground truth object classes
@@ -146,10 +150,191 @@ class SceneGraphEvaluator(DatasetEvaluator):
                     prediction['rel_pair_idxs_3'] = output["rel_pair_idxs_3"].to(self._cpu_device)
                     prediction['pred_rel_scores_3'] = output["pred_rel_scores_3"].to(self._cpu_device)
 
+            ## visualize ##
+            # image = torch.tensor(input['image']).permute(1,2,0)
+            PATH = "/mnt/data/winter23/build/IterativeSG_centermask/"
+            with open(PATH+"idx_to_label.json") as f:
+                idx_to_label = json.load(f)
+            font_scale = 0.5
+            lw = 5
+            rnd = np.random.RandomState(222)
+            node_colors_fixed = rnd.randint(low=1, high=255, size=(1000,3)).astype(np.uint8)
+            k = input['image_id']
+            transform = T.Resize(input['instances'].image_size)
+            ori_image = transform(input['image'].clone().detach())
+            image = ori_image.numpy()
+            image = image.transpose((1,2,0)).astype(np.uint8)
+            image = image.copy()
+            i = 0
+            for bbox in prediction['instances'].pred_boxes[:20]:
+                score = prediction['instances'].scores[i].item()
+                if score < 0.2:
+                    break
+                bbox = np.round(bbox.numpy()).astype(np.int)
+                idx = prediction['instances'].pred_classes[i].item()+1
+                label = idx_to_label[str(idx)]
+                color = node_colors_fixed[idx][::-1]
+                color = (int(color[0]), int(color[1]), int(color[2]))
+
+                bbox[0] = np.clip(bbox[0], 1, image.shape[1] - 2)
+                bbox[2] = np.clip(bbox[2], 1, image.shape[1] - 2)
+                bbox[1] = np.clip(bbox[1], 1, image.shape[0] - 2)
+                bbox[3] = np.clip(bbox[3], 1, image.shape[0] - 2)
+                cv2.rectangle(image, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, lw)
+                cv2.rectangle(image, (bbox[0], bbox[1]), (bbox[0] + len(label) * int(font_scale * 20), bbox[1] + int(font_scale ** 0.5 * 30)), color, -1)
+                cv2.putText(image, label, (bbox[0], bbox[1] + 15), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2, cv2.LINE_AA)
+                i += 1
+            image = Image.fromarray(image, 'RGB')
+            image.save(f'{k}_bb_prediction.png')
+
+            image = ori_image.numpy()
+            image = image.transpose((1,2,0)).astype(np.uint8)
+            image = image.copy()
+
+            i = 0
+            for bbox in input['instances'].gt_boxes[:20]:
+
+                bbox = np.round(bbox.numpy()).astype(np.int)
+                idx = input['instances'].gt_classes[i].item()+1
+                label = idx_to_label[str(idx)]
+                color = node_colors_fixed[idx][::-1]
+                color = (int(color[0]), int(color[1]), int(color[2]))
+
+                bbox[0] = np.clip(bbox[0], 1, image.shape[1] - 2)
+                bbox[2] = np.clip(bbox[2], 1, image.shape[1] - 2)
+                bbox[1] = np.clip(bbox[1], 1, image.shape[0] - 2)
+                bbox[3] = np.clip(bbox[3], 1, image.shape[0] - 2)
+                cv2.rectangle(image, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, lw)
+                cv2.rectangle(image, (bbox[0], bbox[1]), (bbox[0] + len(label) * int(font_scale * 20), bbox[1] + int(font_scale ** 0.5 * 30)), color, -1)
+                cv2.putText(image, label, (bbox[0], bbox[1] + 15), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2, cv2.LINE_AA)
+                i += 1
+            image = Image.fromarray(image, 'RGB')
+            image.save(f'{k}_bb_ground_truth.png')
+
+            ## make scene graph ##
+            with open(PATH+"idx_to_predicate.json") as f:
+                idx_to_predicate = json.load(f)
+            G = nx.DiGraph()
+            i = 0
+            edge_labels = {}
+            color_list = []
+            node_labels = {}
+            for pair in prediction['rel_pair_idxs']:
+                if len(G.nodes) > 30:
+                    break
+                rel_score = prediction['pred_rel_scores'][i].numpy()
+                rel = np.argmax(rel_score)+1
+                if rel > 50:
+                    continue
+                rel_label = idx_to_predicate[str(rel)]
+                u, v = pair[0].item(), pair[1].item()
+                u_idx = prediction['instances'].pred_classes[u].item()+1
+                v_idx = prediction['instances'].pred_classes[v].item()+1
+                u_label, v_label = idx_to_label[str(u_idx)], idx_to_label[str(v_idx)]
+                G.add_node(u, label=u_label)
+                G.add_node(v, label=v_label)
+                node_labels[u] = u_label
+                node_labels[v] = v_label
+                G.add_edge(u, v)
+                edge_labels[(u, v)] = rel_label
+                # u_color = node_colors_fixed[u_idx][::-1]
+                # u_color = (int(u_color[0]), int(u_color[1]), int(u_color[2]))
+                # v_color = node_colors_fixed[v_idx][::-1]
+                # v_color = (int(v_color[0]), int(v_color[1]), int(v_color[2]))
+                # color_list.add(u_color)
+                # color_list.add(v_color)
+                i += 1
+            for node in node_labels.keys():
+                idx = prediction['instances'].pred_classes[node].item()+1
+                color = node_colors_fixed[idx][::-1]
+                color = (int(color[0]), int(color[1]), int(color[2]))
+                color_list.append(color)
+
             
+            # pos = nx.circular_layout(G)
+            # plt.figure()
+            # nx.draw(G, pos, edge_color='black', with_labels=False, width=1, linewidths=1,
+            #         node_size=500, node_color=np.array(list(color_list)) / 255., alpha=0.9,
+            #         labels={node: node for node in G.nodes()})
+            # nx.draw_networkx_labels(G, pos, labels=node_labels)
+            # nx.draw_networkx_edge_labels(G, pos,
+            #                              edge_labels=edge_labels,
+            #                              font_color='red')
+            # plt.axis('off')
+            # plt.savefig('scene_graph_circular.png')
+
+            # pos = nx.spring_layout(G)
+            # plt.figure()
+            # nx.draw(G, pos, edge_color='black', with_labels=False, width=1, linewidths=1,
+            #         node_size=500, node_color=np.array(list(color_list)) / 255., alpha=0.9,
+            #         labels={node: node for node in G.nodes()})
+            # nx.draw_networkx_labels(G, pos, labels=node_labels)
+            # nx.draw_networkx_edge_labels(G, pos,
+            #                              edge_labels=edge_labels,
+            #                              font_color='red')
+            # plt.axis('off')
+            # plt.savefig('scene_graph_spring.png')
+
+            pos = nx.kamada_kawai_layout(G)
+            plt.figure()
+            nx.draw(G, pos, edge_color='black', with_labels=False, width=1, linewidths=1,
+                    node_size=500, node_color=np.array(list(color_list)) / 255., alpha=0.9,
+                    labels={node: node for node in G.nodes()})
+            nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=16)
+            nx.draw_networkx_edge_labels(G, pos,
+                                         edge_labels=edge_labels,
+                                         font_color='red',  font_size=16)
+            plt.axis('off')
+            plt.savefig(f'{k}_sg_pred.png')
+
+            G = nx.DiGraph()
+            i = 0
+            edge_labels = {}
+            color_list = []
+            node_labels = {}
+            for pair in input['relations']:
+                u, v, rel = pair[0].item(), pair[1].item(), pair[2].item()
+                rel += 1
+                rel_label = idx_to_predicate[str(rel)]
+                u_idx = input['instances'].gt_classes[u].item()+1
+                v_idx = input['instances'].gt_classes[v].item()+1
+                u_label, v_label = idx_to_label[str(u_idx)], idx_to_label[str(v_idx)]
+                G.add_node(u, label=u_label)
+                G.add_node(v, label=v_label)
+                node_labels[u] = u_label
+                node_labels[v] = v_label
+                G.add_edge(u, v)
+                edge_labels[(u, v)] = rel_label
+                # u_color = node_colors_fixed[u_idx][::-1]
+                # u_color = (int(u_color[0]), int(u_color[1]), int(u_color[2]))
+                # v_color = node_colors_fixed[v_idx][::-1]
+                # v_color = (int(v_color[0]), int(v_color[1]), int(v_color[2]))
+                # color_list.add(u_color)
+                # color_list.add(v_color)
+                i += 1
+            for node in node_labels.keys():
+                idx = input['instances'].gt_classes[node].item()+1
+                color = node_colors_fixed[idx][::-1]
+                color = (int(color[0]), int(color[1]), int(color[2]))
+                color_list.append(color)
+
+            pos = nx.kamada_kawai_layout(G)
+            plt.figure()
+            nx.draw(G, pos, edge_color='black', with_labels=False, width=1, linewidths=1,
+                    node_size=500, node_color=np.array(list(color_list)) / 255., alpha=0.9,
+                    labels={node: node for node in G.nodes()})
+            nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=16)
+            nx.draw_networkx_edge_labels(G, pos,
+                                         edge_labels=edge_labels,
+                                         font_color='red',  font_size=16)
+            plt.axis('off')
+            plt.savefig(f'{k}_sg_gt.png')
+
+            ###############
+
+
             ground_truth_cp = copy.deepcopy(ground_truth)
             prediction_cp = copy.deepcopy(prediction)
-        
             del ground_truth 
             del prediction
             self._ground_truths.append(ground_truth_cp)
@@ -222,6 +407,7 @@ class SceneGraphEvaluator(DatasetEvaluator):
         for i , (groundtruth, prediction) in tqdm(enumerate(zip(ground_truths, predictions)),desc='Computing recalls'):
             self.evaluate_relation_of_one_image(groundtruth, prediction, global_container,i)
 
+
         self._logger.info("Scene Graph Metric Evaluation Complete. Computing recall statistics...")
         # ('SGRecall', 'SGNoGraphConstraintRecall', 'SGZeroShotRecall', 'SGPairAccuracy', 'SGMeanRecall')
         if 'SGMeanRecall' in self._evaluators:
@@ -292,9 +478,10 @@ class SceneGraphEvaluator(DatasetEvaluator):
             self._evaluators['SGZeroShotRecall'].prepare_zeroshot(global_container, local_container)
 
         if mode == 'predcls':
-            local_container['pred_boxes'] = local_container['gt_boxes']
-            local_container['pred_classes'] = local_container['gt_classes']
-            local_container['obj_scores'] = np.ones(local_container['gt_classes'].shape[0])
+            pass
+            # local_container['pred_boxes'] = local_container['gt_boxes']
+            # local_container['pred_classes'] = local_container['gt_classes']
+            # local_container['obj_scores'] = np.ones(local_container['gt_classes'].shape[0])
 
         elif mode == 'sgcls':
             if local_container['gt_boxes'].shape[0] != local_container['pred_boxes'].shape[0]:
