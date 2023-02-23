@@ -1,28 +1,19 @@
 import logging
-import math
-from multiprocessing import Condition
-from turtle import back
-from typing import List
-
-import numpy as np
 import torch
-import torch.distributed as dist
 import torch.nn.functional as F
-from scipy.optimize import linear_sum_assignment
 from torch import nn
 
-from detectron2.layers import ShapeSpec
-from detectron2.modeling import META_ARCH_REGISTRY, build_backbone, detector_postprocess
-from detectron2.structures import Boxes, ImageList, Instances, BitMasks, PolygonMasks, pairwise_iou
-from detectron2.utils.logger import log_first_n
-from detectron2.data import MetadataCatalog
-from fvcore.nn import giou_loss, smooth_l1_loss
-from ..transformer import build_detr, build_criterion, build_transformer, build_matcher, build_position_encoding
-from ..transformer.segmentation import DETRsegm, PostProcessPanoptic, PostProcessSegm
-from ..transformer.util.utils import box_cxcywh_to_xyxy, box_xyxy_to_cxcywh, NestedTensor, convert_coco_poly_to_mask
-from ..transformer.util import box_ops
-from ..backbone import MaskedBackbone, Joiner, Backbone, DeformableDETRMaskedBackbone, DeformableDETRJoiner
+from detectron2.modeling import META_ARCH_REGISTRY, detector_postprocess
+from detectron2.structures import Boxes, ImageList, Instances, BitMasks, pairwise_iou
 from detectron2.layers import batched_nms
+from detectron2.data import MetadataCatalog
+from detectron2.modeling.proposal_generator.build import PROPOSAL_GENERATOR_REGISTRY
+from detectron2.modeling.roi_heads import ROI_HEADS_REGISTRY
+
+from ..transformer.util.utils import box_cxcywh_to_xyxy, box_xyxy_to_cxcywh, convert_coco_poly_to_mask
+from ..transformer import build_detr, build_criterion, build_transformer, build_matcher, build_position_encoding
+from ..transformer.segmentation import DETRsegm, PostProcessSegm
+from ..backbone import MaskedBackbone, Joiner
 
 __all__ = ["Detr"]
 
@@ -76,7 +67,14 @@ class Detr(nn.Module):
         backbone = Joiner(d2_backbone, position_embedding)
         backbone.num_channels = d2_backbone.num_channels
 
-        transformer = build_transformer(cfg.MODEL.DETR.TRANSFORMER, d_model=hidden_dim, dropout=dropout, nhead=nheads, dim_feedforward=dim_feedforward, num_encoder_layers=enc_layers, num_decoder_layers=dec_layers, normalize_before=pre_norm, return_intermediate_dec=deep_supervision, num_object_decoder_layers=obj_dec_layers, num_classes=self.num_classes, num_relation_classes=self.num_relation_classes, beta=beta)
+        # Centermask parameters:
+        proposal_generator = cfg.MODEL.PROPOSAL_GENERATOR.NAME
+        roi_heads = cfg.MODEL.ROI_HEADS.NAME
+        self.proposal_generator = PROPOSAL_GENERATOR_REGISTRY.get(proposal_generator)(cfg, d2_backbone.backbone.output_shape())
+        self.roi_heads = ROI_HEADS_REGISTRY.get(roi_heads)(cfg, d2_backbone.backbone.output_shape())
+
+        transformer = build_transformer(cfg.MODEL.DETR.TRANSFORMER, d_model=hidden_dim, dropout=dropout, nhead=nheads, dim_feedforward=dim_feedforward, num_encoder_layers=enc_layers, num_decoder_layers=dec_layers, normalize_before=pre_norm, return_intermediate_dec=deep_supervision, num_object_decoder_layers=obj_dec_layers, num_classes=self.num_classes, num_relation_classes=self.num_relation_classes, beta=beta, proposal_generator = self.proposal_generator, roi_heads=self.roi_heads)
+
 
         self.detr = build_detr(cfg.MODEL.DETR.NAME, backbone, transformer, num_classes=self.num_classes, num_queries=num_queries, aux_loss=deep_supervision, use_gt_box=self.use_gt_box, use_gt_label = self.use_gt_label, num_relation_queries=num_relation_queries)
         if self.mask_on:
@@ -257,7 +255,14 @@ class IterativeRelationDetr(Detr):
                 mapping from a named loss to a tensor storing the loss. Used during training only.
         """
         images = self.preprocess_image(batched_inputs)
-        output = self.detr(images)
+        ## 추가 ##
+        if "instances" in batched_inputs[0]:
+            gt_instances = [x["instances"].to(self.device) for x in batched_inputs]
+        else:
+            gt_instances = None
+        ##########
+
+        output = self.detr(images, gt_instances)
 
         if self.training:
             gt_instances = [x["instances"].to(self.device) for x in batched_inputs]
