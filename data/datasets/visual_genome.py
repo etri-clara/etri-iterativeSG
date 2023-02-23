@@ -1,21 +1,17 @@
 import h5py
 import json
-import math
-from math import floor
-from PIL import Image, ImageDraw
-import random
 import os
-import torch
-import numpy as np
 import pickle
-import yaml
-from detectron2.config import get_cfg
-from detectron2.structures import Instances, Boxes, pairwise_iou, BoxMode
-from detectron2.data import DatasetCatalog, MetadataCatalog
-import logging
+import numpy as np
 from collections import defaultdict
-from torch.utils.data import Dataset, DataLoader
 import copy
+
+import torch
+from torch.utils.data import Dataset
+
+from detectron2.structures import Boxes, pairwise_iou, BoxMode
+from detectron2.data import DatasetCatalog, MetadataCatalog
+
 
 class VisualGenomeTrainData:
     """

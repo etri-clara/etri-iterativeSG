@@ -1,26 +1,15 @@
-import os
 import copy
+import logging
 import numpy as np
 import torch
-from fvcore.common.file_io import PathManager
-from PIL import Image
+from collections import defaultdict
 
 from detectron2.data import detection_utils as utils
 from detectron2.data import transforms as T
-from detectron2.structures.instances import Instances
-from detectron2.data import DatasetCatalog, MetadataCatalog, MapDataset, DatasetFromList, DatasetMapper
-from collections import defaultdict
-from imantics import Polygons, Mask
-import logging
 from detectron2.structures import (
-    BitMasks,
     Boxes,
     BoxMode,
     Instances,
-    Keypoints,
-    PolygonMasks,
-    RotatedBoxes,
-    polygons_to_bitmask,
 )
 
 def build_transform_gen(cfg, is_train):
@@ -49,32 +38,6 @@ def build_transform_gen(cfg, is_train):
         logger.info("TransformGens used in training: " + str(tfm_gens))
     return tfm_gens
 
-def filter_empty_instances(instances, by_box=True, by_mask=True, box_threshold=1e-5):
-    """
-    Filter out empty instances in an `Instances` object.
-    Args:
-        instances (Instances):
-        by_box (bool): whether to filter out instances with empty boxes
-        by_mask (bool): whether to filter out instances with empty masks
-        box_threshold (float): minimum width and height to be considered non-empty
-    Returns:
-        Instances: the filtered instances.
-    """
-    assert by_box or by_mask
-    r = []
-    if by_box:
-        r.append(instances.gt_boxes.nonempty(threshold=box_threshold))
-    if instances.has("gt_masks") and by_mask:
-        r.append(instances.gt_masks.nonempty())
-
-    # TODO: can also filter visible keypoints
-
-    if not r:
-        return instances
-    m = r[0]
-    # for x in r[1:]:
-    #     m = m & x
-    return instances[m], r
 
 class DetrDatasetMapper:
     """
