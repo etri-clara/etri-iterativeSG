@@ -4,11 +4,9 @@
 
 # our motivation
 ![plot](./intro_img.png)
-[1]	KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.																	
-[2]	LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.																	
-																		
-B.P.	Backbone Parameter																	
-T.P.	Total Parameter											
+[1]	KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.					<br>												
+[2]	LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.													><br>																			
+B.P.	Backbone Parameter, T.P.	Total Parameter											
 
 
 | Ref.   | Project Name                    | GPU   | EA | Batch | Backbone        | Detector   | B.P.   | T.P.        | α    | β    | Epoch   | [R@20/50/100](mailto:R@20/50/100) | [ng-R@20/50/100](mailto:ng-R@20/50/100) | [zR@20/50/100](mailto:zR@20/50/100) | [mR@20/50/100](mailto:mR@20/50/100) | [hR@20/50/100](mailto:hR@20/50/100) | Inference time (s) |
