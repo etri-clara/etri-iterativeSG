@@ -53,7 +53,7 @@
 
 
 ## Evaluation Demonstration
-![plot](./intro_img_v2.jpg)
+![plot](./intro_img_v3.jpg)
 
 
 
