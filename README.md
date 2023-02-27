@@ -1,12 +1,8 @@
 ##### ETIR-Iterative SG Model
 ## Proposed Iterative Scene Graph Generation Model Architecture
 ![plot](./intro_img.jpg)
-###### Black(bold line: VoVNet), Red(bold line: centneramsk), Blue(bold line: Our proposed methodology)
-
-[1] KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.
-
-[2] LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.>
-
+###### *Black(line: ResNet), Red(line: Encoder)
+###### *Black(bold line: VoVNet), Red(bold line: Centneramsk), Blue(bold line: Our proposed methodology)
 
 ## Performance Evaluation
 ###### B.P.:	Backbone Parameter / T.P.:	Total Parameter
@@ -52,6 +48,38 @@
 |F|**0.1099**|**0.1308**|**0.1438**|
 |G|-|-|-|
 
+---
+
+###### Epoch: 100,000 / α, β: 0.07, 0.75 / I.T.: Inference Time  
+|Model|R@20/50/100|ng-R@20/50/100|zR@20/50/100|mR@20/50/100|I.T (sec)|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|A|-|-|-|-|-|
+|B|-|-|-|-|-|
+|C|6.40/8.18/9.46|6.67/9.27/11.07|0.00/0.045/0.089|3.34/4.25/6.25|0.117365
+|D|5.61/7.38/8.53|5.53/7.91/10.00|0.00/0.045/0.089|2.97/3.65/4.27|0.116621
+|E|18.35/20.85/22.11|19.43/23.92/27.05|0.89/2.90/3.35|7.56/9.84/10.44|0.119549
+|F|16.91/19.09/20.14|18.07/22.54/25.60|0.45/2.23/2.46|7.27/8.54/9.02|0.124869
+|G|11.24/12.88/13.78|11.88/15.00/16.98|0.22/0.67/0.156|4.10/4.96/5.56|0.152235
+
+|Model|AP|AP50|AP75|APs|APm|API|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|A|-|-|-|-|-|-|
+|B|-|-|-|-|-|-|
+|C|4.6338|10.0964|3.8084|0.1029|0.9584|6.6563|
+|D|3.8670|8.4700|3.1530|0.2860|0.7840	5.4020|
+|E|13.4100|23.6500|12.7300|2.8400|4.9200|19.5900|
+|F|12.9729|23.2963|12.0455|2.5266|4.7236|18.9786|
+|G|7.2027|12.5070|6.7806|1.1368|2.4701|10.2745|
+
+|Model|SGMeanRecall@20|SGMeanRecall@50|SGMeanRecall@100|
+|:---:|:---:|:---:|:---:|
+|A|-|-|-|
+|B|-|-|-|
+|C|0.0334|0.0425|0.0625|
+|D|0.0297|0.0365|0.0427|
+|E|0.0756|0.0984|0.1044|
+|F|0.0727|0.0854|0.0902|
+|G|0.0410|0.0496|0.0556|
 
 ## Evaluation Demonstration
 ![plot](./evaluation_demo_img.jpg)
@@ -123,7 +151,7 @@ SGG eval:    mR @ 20: 0.1115;    mR @ 50: 0.1561;    mR @ 100: 0.1770;  for mode
 
 ### CenterMask
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="@inproceedings{Yu2022CoCaCC,
-  title   = {enterMask: Real-Time Anchor-Free Instance Segmentation},
+  title   = {centerMask: Real-Time Anchor-Free Instance Segmentation},
   author  = {Lee, Youngwan and Park, Jongyoul},
   year    = {CVPR 2020}
 }"><pre class="notranslate"><code>
