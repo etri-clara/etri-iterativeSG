@@ -1,13 +1,13 @@
 ##### ETIR-Iterative SG Model
-# Proposed Iterative Scene Graph Generation Model Architecture
+## Proposed Iterative Scene Graph Generation Model Architecture
 ![plot](./intro_img_v2.jpg)
 
 [1] KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.
 
 [2] LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.>
 
----
 
+## Performance Evaluation
 ###### B.P.:	Backbone Parameter / T.P.:	Total Parameter
 |Ref.|Backbone|Detector|B.P.|T.P.|GPU|EA|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -31,17 +31,35 @@
 |F|**24.98/27.98/29.49**|**27.06/33.32/37.54**|**3.35/4.91/6.70**|**10.99/13.08/14.38**|0.124565|
 |G|-|-|-|-|-|
 
----
+|Model|AP|AP50|AP75|APs|APm|API|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|A|13.4691|24.9608|12.3987|3.6703|7.9725|18.334|
+|B|||||||
+|C|||||||
+|D|||||||
+|E|||||||
+|F|||||||
+|G|||||||
 
+|Model|SGMeanRecall@20|SGMeanRecall@50|SGMeanRecall@100|
+|:---:|:---:|:---:|:---:|
+|A|0.1054|0.1292|0.1443|
+|B||||
+|C||||
+|D||||
+|E||||
+|F||||
+|G||||
+
+
+## Evaluation Demonstration
 ![plot](./intro_img_v2.jpg)
 
 
 
 
----
 
-
-# Iterative Scene Graph Generation
+## Iterative Scene Graph Generation
 
 Below code is the reference paper titled ["Iterative Scene Graph Generation"](https://openreview.net/pdf?id=i0FnLiIRj6U).
 
