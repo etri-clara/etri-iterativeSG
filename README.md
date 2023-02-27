@@ -66,7 +66,7 @@
 |A|-|-|-|-|-|-|
 |B|-|-|-|-|-|-|
 |C|4.6338|10.0964|3.8084|0.1029|0.9584|6.6563|
-|D|3.8670|8.4700|3.1530|0.2860|0.7840	5.4020|
+|D|3.8670|8.4700|3.1530|0.2860|0.7840|5.4020|
 |E|13.4100|23.6500|12.7300|2.8400|4.9200|19.5900|
 |F|12.9729|23.2963|12.0455|2.5266|4.7236|18.9786|
 |G|7.2027|12.5070|6.7806|1.1368|2.4701|10.2745|
@@ -91,13 +91,13 @@
 ## Requirements
 The following packages are needed to run the code.
 ```python
-python == 3.8.5
-PyTorch == 1.8.2
-detectron2 == 0.6
+python==3.8.5
+PyTorch==1.8.2
+detectron2==0.6
 h5py
 imantics
 easydict
-cv2 == 4.5.5
+cv2==4.5.5
 scikit-learn
 scipy
 pandas
@@ -113,7 +113,7 @@ $ pip3 install torch==1.8.2 torchvision==0.9.2 torchaudio==0.8.2 --extra-index-u
 $ pip install h5py imantics easydict scikit-learn scipy pandas
 $ pip3 install opencv-python==4.5.5.64
 
-[detectron2 == 0.6 installation]
+[detectron2==0.6 installation]
 $ python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 ```
 
