@@ -91,17 +91,17 @@
 ## Requirements
 The following packages are needed to run the code.
 ```python
-- `python == 3.8.5`
-- `PyTorch == 1.8.2`
-- `detectron2 == 0.6`
-- `h5py`
-- `imantics`
-- `easydict`
-- `cv2 == 4.5.5`
-- `scikit-learn`
-- `scipy`
-- `pandas`
-- `numpy==1.23.3`
+python == 3.8.5
+PyTorch == 1.8.2
+detectron2 == 0.6
+h5py
+imantics
+easydict
+cv2 == 4.5.5
+scikit-learn
+scipy
+pandas
+numpy==1.23.3
 ```
 
 ## Installation
@@ -138,11 +138,11 @@ python train_iterative_model.py --resume --num-gpus <NUM_GPUS>
 --config-file configs/iterative_model.yaml \
 OUTPUT_DIR <PATH TO CHECKPOINT DIR> \
 DATASETS.VISUAL_GENOME.IMAGES <PATH TO VG_100K IMAGES> \
-DATASETS.VISUAL_GENOME.MAPPING_DICTIONARY <PATH TO VG-SGG-dicts-with-attri.json> \
+DATASETS.VISUAL_GENOME.MAPPING_DICTIONARY <PATH TO VG-SGG_dicts_with_attri.json> \
 DATASETS.VISUAL_GENOME.IMAGE_DATA <PATH TO image_data.json> \
-DATASETS.VISUAL_GENOME.VG_ATTRIBUTE_H5 <PATH TO VG-SGG-with-attri.h5> \
+DATASETS.VISUAL_GENOME.VG_ATTRIBUTE_H5 <PATH TO VG_SGG_with_attri.h5> \
 MODEL.DETR.OVERSAMPLE_PARAM <Alpha Value> \
-MODEL.DETR.UNDERSAMPLE_PARAM <Twice the Beta Value> \
+MODEL.DETR.UNDERSAMPLE_PARAM <Twice Beta Value> \
 SOLVER.CLIP_GRADIENTS.CLIP_VALUE 0.01 \
 SOLVER.IMS_PER_BATCH 12 \
 MODEL.DETR.NO_OBJECT_WEIGHT 0.1 \
