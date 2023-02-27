@@ -152,8 +152,8 @@ MODEL.WEIGHTS <path to model_checkpoint.pth>
 - `MODEL.DETR.UNDERSAMPLE_PARAM` should be specified as twice the desired β value. (`β=0.75` use `MODEL.DETR.UNDERSAMPLE_PARAM 1.5`)
 
 **Note**<br/>
-- If the code fails, try running it on a single GPU first in order to allow some preprocessed files to be generated. (This is a one-time step.) 
-- Once the code runs succesfully on a single GPU, you can run it on multiple GPUs as well. Additionally, the code, by default, is configured to run on 4 GPUs with a batch size of 12. If you run out of memory, change the batch size by using the flag `SOLVER.IMS_PER_BATCH <NUM IMAGES IN BATCH>`.
+- If the code fails, try running it on a single GPU first in order to allow some preprocessed files to be generated.
+- (This is a one-time step.) Once the code runs succesfully on a single GPU, you can run it on multiple GPUs as well. Additionally, the code, by default, is configured to run on 4 GPUs with a batch size of 12. If you run out of memory, change the batch size by using the flag `SOLVER.IMS_PER_BATCH <NUM IMAGES IN BATCH>`.
 
 To evaluate the code, use the following command:
 ```python
