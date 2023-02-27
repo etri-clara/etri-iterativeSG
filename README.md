@@ -1,6 +1,6 @@
 ##### ETIR-Iterative SG Model
 ## Proposed Iterative Scene Graph Generation Model Architecture
-![plot](./intro_img_v2.jpg)
+![plot](./intro_img.jpg)
 
 [1] KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.
 
@@ -53,7 +53,7 @@
 
 
 ## Evaluation Demonstration
-![plot](./evaluation_demo_img_v1.jpg)
+![plot](./evaluation_demo_img.jpg)
 
 
 
