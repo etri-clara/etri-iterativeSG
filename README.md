@@ -6,7 +6,22 @@
 
 [2] LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.>
 
-###### B.P.	Backbone Parameter, T.P.	Total Parameter											
+###### B.P.	Backbone Parameter, T.P.	Total Parameter
+
+|Ref.|Model Name|Backbone|Detector|B.P.|T.P.|GPU|EA|
+|---|---|---|---|---|---|---|---|
+|[1]|IterativeSG|ResNet-101|DETR|44.5 M|93.2 M|A100|4|
+|A|IterativeSG_ETIR|ResNet-101|DETR|44.5 M|93.2 M|A100|4|
+|B|IterativeSG_VoVNet39|VoVNet_v2_39_FPN|DETR|44.5 M|93.2 M|A100|4|
+|C|IterativeSG_VoVNet57|VoVNet_v2_57_FPN|DETR|44.5 M|93.2 M|A100|4|
+|D|IterativeSG_VoVNet99|VoVNet_v2_99_FPN|DETR|44.5 M|93.2 M|A100|4|
+|E|IterativeSG_VoVNet39_Centermask|VoVNet_v2_39_FPN|Centermask|44.5 M|93.2 M|A100|4|
+|F|IterativeSG_VoVNet57_Centermask|VoVNet_v2_57_FPN|Centermask|44.5 M|93.2 M|A100|4|
+|G|IterativeSG_VoVNet99_Centermask|VoVNet_v2_77_FPN|Centermask|44.5 M|93.2 M|A100|4|
+
+
+
+
 | Ref.   | Project Name                    | Backbone        | Detector   | B.P.   | T.P.        | Epoch   | [R@20/50/100](mailto:R@20/50/100) | [ng-R@20/50/100](mailto:ng-R@20/50/100) | [zR@20/50/100](mailto:zR@20/50/100) | [mR@20/50/100](mailto:mR@20/50/100) | [hR@20/50/100](mailto:hR@20/50/100) | Inference time (s) | GPU   | EA | Batch | α    | β    |
 | ------ | ------------------------------- | --------------- | ---------- | ------ | ----------- | ------- | --------------------------------- | --------------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- | ------------------ | ----- | -- | ----- | ---- | ---- |
 | [1]    | IterativeSG       | ResNet-101      | DETR       | 44.5 M | 93,251,470  | 250,000 | 29.70/32.10                       | \-                                      | \-                                  | 8.0/8.8                             | 12.6/13.80                          | \-                 | A100  | 4  | 12    | 0.07 | \*   |
