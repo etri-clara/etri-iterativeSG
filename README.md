@@ -47,9 +47,7 @@
 |E|-|-|-|
 |F|**0.1099**|**0.1308**|**0.1438**|
 |G|-|-|-|
-
 ---
-
 ###### Epoch: 100,000 / α, β: 0.07, 0.75 / I.T.: Inference Time  
 |Model|R@20/50/100|ng-R@20/50/100|zR@20/50/100|mR@20/50/100|I.T (sec)|
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -89,7 +87,6 @@
 
 
 ## Iterative Scene Graph Generation
-
 Below code is the reference paper titled ["Iterative Scene Graph Generation"](https://openreview.net/pdf?id=i0FnLiIRj6U).
 
 ## Requirements
