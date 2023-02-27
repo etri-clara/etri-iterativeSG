@@ -91,21 +91,8 @@
 ## Requirements
 The following packages are needed to run the code.
 ```python
-python==3.8.5
-PyTorch==1.8.2
-detectron2==0.6
-h5py
-imantics
-easydict
-cv2==4.5.5
-scikit-learn
-scipy
-pandas
-numpy==1.23.3
-```
+python==3.8.5 / PyTorch==1.8.2
 
-## Installation
-```python
 [Requirements]
 $ conda create --name iterative_sg python==3.8.5
 $ conda activate iterative_sg
@@ -134,19 +121,7 @@ To enable faster model convergence, we pre-train DETR on Visual Genome. We repli
 
 Our proposed iterative model can be trained using the following command:
 ```python
-python train_iterative_model.py --resume --num-gpus <NUM_GPUS> 
---config-file configs/iterative_model.yaml \
-OUTPUT_DIR <PATH TO CHECKPOINT DIR> \
-DATASETS.VISUAL_GENOME.IMAGES <PATH TO VG_100K IMAGES> \
-DATASETS.VISUAL_GENOME.MAPPING_DICTIONARY <PATH TO VG-SGG_dicts_with_attri.json> \
-DATASETS.VISUAL_GENOME.IMAGE_DATA <PATH TO image_data.json> \
-DATASETS.VISUAL_GENOME.VG_ATTRIBUTE_H5 <PATH TO VG_SGG_with_attri.h5> \
-MODEL.DETR.OVERSAMPLE_PARAM <Alpha Value> \
-MODEL.DETR.UNDERSAMPLE_PARAM <Twice Beta Value> \
-SOLVER.CLIP_GRADIENTS.CLIP_VALUE 0.01 \
-SOLVER.IMS_PER_BATCH 12 \
-MODEL.DETR.NO_OBJECT_WEIGHT 0.1 \
-MODEL.WEIGHTS <PATH TO DETR Pretrained Model>
+python train_iterative_model.py --resume --num-gpus <NUM_GPUS> --config-file configs/iterative_model.yaml OUTPUT_DIR <PATH TO CHECKPOINT DIR> DATASETS.VISUAL_GENOME.IMAGES <PATH TO VG_100K IMAGES> DATASETS.VISUAL_GENOME.MAPPING_DICTIONARY <PATH TO VG-SGG-dicts-with-attri.json> DATASETS.VISUAL_GENOME.IMAGE_DATA <PATH TO image_data.json> DATASETS.VISUAL_GENOME.VG_ATTRIBUTE_H5 <PATH TO VG-SGG-with-attri.h5> MODEL.DETR.OVERSAMPLE_PARAM <Alpha Value> MODEL.DETR.UNDERSAMPLE_PARAM <Twice the Beta Value> SOLVER.CLIP_GRADIENTS.CLIP_VALUE 0.01 SOLVER.IMS_PER_BATCH 12 MODEL.DETR.NO_OBJECT_WEIGHT 0.1 MODEL.WEIGHTS <PATH TO DETR Pretrained Model>
 ```
 To set the `α` value use `MODEL.DETR.OVERSAMPLE_PARAM` flag, and set the `β` value using the `MODEL.DETR.UNDERSAMPLE_PARAM`. Note that `MODEL.DETR.UNDERSAMPLE_PARAM` should be specified as twice the desired β value. So for `β=0.75` use `MODEL.DETR.UNDERSAMPLE_PARAM 1.5`.
 
