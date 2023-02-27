@@ -4,6 +4,8 @@
 ###### *Black(line: ResNet), Red(line: Encoder)
 ###### *Black(bold line: VoVNet), Red(bold line: Centneramsk), Blue(bold line: Our proposed methodology)
 
+---
+
 ## Performance Evaluation
 ###### B.P.:	Backbone Parameter / T.P.:	Total Parameter
 |Ref.|Backbone|Detector|B.P.|T.P.|GPU|EA|
@@ -47,7 +49,7 @@
 |E|-|-|-|
 |F|**0.1099**|**0.1308**|**0.1438**|
 |G|-|-|-|
----
+
 ###### Epoch: 100,000 / α, β: 0.07, 0.75 / I.T.: Inference Time  
 |Model|R@20/50/100|ng-R@20/50/100|zR@20/50/100|mR@20/50/100|I.T (sec)|
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -79,15 +81,12 @@
 |F|0.0727|0.0854|0.0902|
 |G|0.0410|0.0496|0.0556|
 
+---
+
 ## Evaluation Demonstration
 ![plot](./evaluation_demo_img.jpg)
 
-
-
-
-
-## Iterative Scene Graph Generation
-Below code is the reference paper titled ["Iterative Scene Graph Generation"](https://openreview.net/pdf?id=i0FnLiIRj6U).
+---
 
 ## Requirements
 The following packages are needed to run the code.
@@ -101,6 +100,20 @@ The following packages are needed to run the code.
 - `scikit-learn`
 - `scipy`
 - `pandas`
+- `numpy==1.23.3`
+
+## Installation
+```
+[Requirements]
+$ conda create --name iterative_sg python==3.8.5
+$ conda activate iterative_sg
+$ pip3 install torch==1.8.2 torchvision==0.9.2 torchaudio==0.8.2 --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu111
+$ pip install h5py imantics easydict scikit-learn scipy pandas
+$ pip3 install opencv-python==4.5.5.64
+
+[detectron2 == 0.6 installation]
+$ python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+```
 
 We use the Visual Genome filtered data widely used in the Scene Graph community. 
 Please see the public repository of the paper  [Unbiased Scene Graph Generation repository](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch/blob/master/DATASET.md) on instructions to download this dataset. After downloading the dataset you should have the following 4 files: 
