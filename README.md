@@ -3,7 +3,7 @@
 전상훈 박사님/최민규 학생! 제가 샘플로 만들어놓은 README입니다. 코드 올려주시고 README 보완해주세요.
 
 # our motivation
-![plot](./intro_img.png)
+![plot](./intro_img_v2.jpg)
 [1]	KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.					<br>												
 [2]	LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.													><br>																			
 B.P.	Backbone Parameter, T.P.	Total Parameter											
