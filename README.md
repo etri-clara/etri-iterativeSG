@@ -9,15 +9,15 @@
 ###### B.P.	Backbone Parameter, T.P.	Total Parameter
 
 |Ref.|Model Name|Backbone|Detector|B.P.|T.P.|GPU|EA|
-|---|---|---|---|---|---|---|---|
-|[1]|IterativeSG|ResNet-101|DETR|44.5 M|93.2 M|A100|4|
-|A|IterativeSG_ETIR|ResNet-101|DETR|44.5 M|93.2 M|A100|4|
-|B|IterativeSG_VoVNet39|VoVNet_v2_39_FPN|DETR|44.5 M|93.2 M|A100|4|
-|C|IterativeSG_VoVNet57|VoVNet_v2_57_FPN|DETR|44.5 M|93.2 M|A100|4|
-|D|IterativeSG_VoVNet99|VoVNet_v2_99_FPN|DETR|44.5 M|93.2 M|A100|4|
-|E|IterativeSG_VoVNet39_Centermask|VoVNet_v2_39_FPN|Centermask|44.5 M|93.2 M|A100|4|
-|F|IterativeSG_VoVNet57_Centermask|VoVNet_v2_57_FPN|Centermask|44.5 M|93.2 M|A100|4|
-|G|IterativeSG_VoVNet99_Centermask|VoVNet_v2_77_FPN|Centermask|44.5 M|93.2 M|A100|4|
+|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+|[1]|IterativeSG|ResNet-101|DETR|44.5 M|93.3 M|A100|4|
+|A|IterativeSG_ETIR|ResNet-101|DETR|44.5 M|93.3 M|A100|4|
+|B|IterativeSG_VoVNet39|VoVNet_v2_39_FPN|DETR|52.6 M|79.1 M|A100|4|
+|C|IterativeSG_VoVNet57|VoVNet_v2_57_FPN|DETR|68.9 M|95.4 M|A100|4|
+|D|IterativeSG_VoVNet99|VoVNet_v2_99_FPN|DETR|96.9 M|123.4 M|A100|4|
+|E|IterativeSG_VoVNet39_Centermask|VoVNet_v2_39_FPN|Centermask|52.6 M|103.2 M|A100|4|
+|F|IterativeSG_VoVNet57_Centermask|VoVNet_v2_57_FPN|Centermask|68.9 M|119.4 M|A100|4|
+|G|IterativeSG_VoVNet99_Centermask|VoVNet_v2_77_FPN|Centermask|96.9 M|147.5 M|A100|4|
 
 
 
