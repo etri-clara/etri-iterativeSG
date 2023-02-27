@@ -1,18 +1,15 @@
-# etri-iterativeSG
-
-전상훈 박사님/최민규 학생! 제가 샘플로 만들어놓은 README입니다. 코드 올려주시고 README 보완해주세요.
-
-# our motivation
+# ETIR-Iterative SG Model
+### Iterative Scene Graph Generation Model Structure
 ![plot](./intro_img_v2.jpg)
 
 [1]	KHANDELWAL, Siddhesh; SIGAL, Leonid. Iterative Scene Graph Generation. arXiv preprint arXiv:2207.13440, 2022.<br>
-[2]	LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.><br>																			
+[2]	LEE, Youngwan; PARK, Jongyoul. Centermask: Real-time anchor-free instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2020. p. 13906-13915.><br
 
 
 B.P.	Backbone Parameter, T.P.	Total Parameter											
 | Ref.   | Project Name                    | Backbone        | Detector   | B.P.   | T.P.        | Epoch   | [R@20/50/100](mailto:R@20/50/100) | [ng-R@20/50/100](mailto:ng-R@20/50/100) | [zR@20/50/100](mailto:zR@20/50/100) | [mR@20/50/100](mailto:mR@20/50/100) | [hR@20/50/100](mailto:hR@20/50/100) | Inference time (s) | GPU   | EA | Batch | α    | β    |
 | ------ | ------------------------------- | --------------- | ---------- | ------ | ----------- | ------- | --------------------------------- | --------------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- | ------------------ | ----- | -- | ----- | ---- | ---- |
-| [1]    | IterativeSG                     | ResNet-101      | DETR       | 44.5 M | 93,251,470  | 250,000 | 29.70/32.10                       | \-                                      | \-                                  | 8.0/8.8                             | 12.6/13.80                          | \-                 | A100  | 4  | 12    | 0.07 | \*   |
+| [1]    | IterativeSG       | ResNet-101      | DETR       | 44.5 M | 93,251,470  | 250,000 | 29.70/32.10                       | \-                                      | \-                                  | 8.0/8.8                             | 12.6/13.80                          | \-                 | A100  | 4  | 12    | 0.07 | \*   |
 | [1]    | IterativeSG                     | ResNet-101      | DETR       | 44.5 M | 93,251,470  | \-      | 27.20/29.80                       | \-                                      | \-                                  | 15.70/17.80                         | 19.90/22.30                         | \-                 | A100  | 4  | 12    | 0.07 | 0.75 |
 | Github | IterativeSG                     | ResNet-101      | DETR       | 44.5 M | 93,251,470  | 250,000 | 21.79/27.12/29.72                 | 22.72/30.52/35.47                       | 1.34/2.74/3.84                      | 11.15/15.61/17.70                   | \-                                  | \-                 | A100  | 4  | 12    | 0.07 | 0.75 |
 | A      | IterativeSG_UBC                 | ResNet-101      | DETR       | 44.5 M | 93,251,470  | 250,000 | 19.39/23.72/26.08                 | 19.77/26.41/30.69                       | 0.74/2.98/3.42                      | 10.54/12.92/14.43                   | \-                                  | 0.100324           | A100  | 4  | 12    | 0.07 | 0.75 |
