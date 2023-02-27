@@ -1,8 +1,9 @@
 ##### ETIR-Iterative SG Model
-## Proposed Iterative Scene Graph Generation Model Architecture
+## (Our proposed) Iterative Scene Graph Generation Model Architecture
 ![plot](./intro_img.jpg)
 ###### *Black(line: ResNet), Red(line: Encoder)
 ###### *Black(bold line: VoVNet), Red(bold line: Centneramsk), Blue(bold line: Our proposed methodology)
+###### *IterativeSG Github [here](https://github.com/ubc-vision/IterativeSG)
 
 ---
 
@@ -123,7 +124,7 @@ Please see the public repository of the paper  [Unbiased Scene Graph Generation 
 ---
 
 ## Train Iterative Model
-To enable faster model convergence, we pre-train DETR on Visual Genome. We replicate the DETR decoder weights three times, and initialize our models three decoders with it. For convenience, the pretrained weights (with the decoder replication) are made available [here](https://drive.google.com/drive/folders/1CdcYdcYEvkZHz-I1IFF8sBxVMWSyWIkh?usp=share_link). To use these weights during training, simply use the `MODEL.WEIGHTS <Path to downloaded checkpoint>` flag in the training command.
+- To enable faster model convergence, we pre-train DETR on Visual Genome. We replicate the DETR decoder weights three times, and initialize our models three decoders with it. For convenience, the pretrained weights (with the decoder replication) are made available [here](https://drive.google.com/drive/folders/1CdcYdcYEvkZHz-I1IFF8sBxVMWSyWIkh?usp=share_link). To use these weights during training, simply use the `MODEL.WEIGHTS <Path to downloaded checkpoint>` flag in the training command.
 
 To train the code, use the following command:
 ```python
@@ -158,7 +159,7 @@ To evaluate the code, use the following command:
 ```python
 python train_iterative_model.py --resume --eval-only --num-gpus <NUM_GPUS> \
 --config-file configs/iterative_model.yaml \
-OUTPUT_DIR <PATH TO CHECKPOINT DIR> \
+OUTPUT_DIR <path checkpoint dir> \
 DATASETS.VISUAL_GENOME.IMAGES <path to vg_100k images> \
 DATASETS.VISUAL_GENOME.MAPPING_DICTIONARY <path to vg-sgg-dicts-with-attri.json> \ 
 DATASETS.VISUAL_GENOME.IMAGE_DATA <path to image_data.json> \
