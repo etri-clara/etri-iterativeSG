@@ -1,4 +1,4 @@
-##### ETIR-Iterative SG Model
+##### ETRI-Iterative SG Model
 ## (Our proposed) Iterative Scene Graph Generation Model Architecture
 ![plot](./intro_img.jpg)
 ###### *Black(line: ResNet), Red(line: Encoder)
